@@ -6,7 +6,6 @@ from datetime import date, timedelta
 
 import requests
 from jinja2 import Environment, FileSystemLoader
-from dotenv import load_dotenv, find_dotenv
 
 
 def send_email(body, subject, fromaddr, frompw, toaddr):
