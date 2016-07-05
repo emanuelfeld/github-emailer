@@ -1,0 +1,18 @@
+<html>
+<head></head>
+<body>
+    {% for organization in data %}
+        <h2 class="organization" id="{{ organization }}">{{ organization }}</h2>
+        <hr>
+        {% for repository in data[organization] %}
+            <p class="repository">
+                <h3 class="repository-title">{{ repository }}</h3>
+                {% set repo_url = data[organization][repository]['repo_url'] %}
+                {% set homepage = data[organization][repository]['homepage'] %}
+                {{ data[organization][repository]['description']}}</br>
+                [<a href="{{ repo_url }}">repository</a>] {% if homepage %}[<a href="{{ homepage }}">homepage</a>]{% endif %}
+            </p>
+        {% endfor %}
+    {% endfor %}
+</body>
+</html>
