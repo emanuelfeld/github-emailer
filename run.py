@@ -1,4 +1,5 @@
-import os 
+import os
+import logging
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
@@ -13,9 +14,9 @@ def send_email(body, subject, fromaddr, frompw, toaddr):
     msg['From'] = fromaddr
     msg['To'] = toaddr
     msg['Subject'] = subject
-     
+
     msg.attach(MIMEText(body, 'html'))
-     
+
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(fromaddr, frompw)
@@ -41,6 +42,7 @@ def get_updates(organization, from_date, token, base_url):
     response = requests.get(url)
     try:
         data = response.json()
+        count = 0
         if data['total_count'] > 0:
             for repository in data['items']:
                 out[repository['name']] = {
@@ -48,17 +50,31 @@ def get_updates(organization, from_date, token, base_url):
                     'description': repository['description'],
                     'homepage': repository['homepage']
                 }
+                count += 1
+        logger.info('{organization}: {count} new repositories found'.format(
+            organization=organization, count=count))
     except:
-        pass
+        logger.warning('{organization} could not be accessed'.format(
+            organization=organization))
     return out
 
 
 def get_following(gist_id):
     response = requests.get('https://gist.github.com/raw/{id}'.format(id=gist_id))
-    return response.text.splitlines()
+    following = response.text.splitlines()
+    logger.info('Following {} organizations'.format(len(following)))
+    return following
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
     output = {}
     from_date = date.today() - timedelta(7)
     base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
@@ -71,9 +87,11 @@ if __name__ == '__main__':
             output[organization] = updates
 
     message = format_email(output)
-    send_email(body=message, 
-               fromaddr=os.environ.get('FROMADDR'), 
-               frompw=os.environ.get('FROMPWD'), 
-               toaddr=os.environ.get('TOADDR'), 
-               subject="GitHub Updates for the Week of {}".format(from_date))
+    logger.info('Email formatted')
 
+    send_email(body=message,
+               fromaddr=os.environ.get('FROMADDR'),
+               frompw=os.environ.get('FROMPWD'),
+               toaddr=os.environ.get('TOADDR'),
+               subject="GitHub Updates for the Week of {}".format(from_date))
+    logger.info('Email sent')
