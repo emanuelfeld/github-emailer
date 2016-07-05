@@ -68,36 +68,37 @@ def get_following(gist_id):
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger()
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    if str(date.today().weekday()) == os.environ.get('UPDATE_DAY'):
+        logger = logging.getLogger()
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+                '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
 
-    output = {}
-    from_date = date.today() - timedelta(7)
-    base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
-    token=os.environ.get('GITHUB_TOKEN')
-    following = get_following(os.environ.get('GIST_ID'))
+        output = {}
+        from_date = date.today() - timedelta(7)
+        base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
+        token=os.environ.get('GITHUB_TOKEN')
+        following = get_following(os.environ.get('GIST_ID'))
 
-    for organization in following:
-        updates = get_updates(organization, from_date, token, base_url)
-        if updates:
-            output[organization] = updates
+        for organization in following:
+            updates = get_updates(organization, from_date, token, base_url)
+            if updates:
+                output[organization] = updates
 
-    message = format_email(output)
-    logger.info('Email formatted')
+        message = format_email(output)
+        logger.info('Email formatted')
 
-    try:
-        send_email(body=message,
-               fromaddr=os.environ.get('FROM_ADDR'),
-               frompw=os.environ.get('FROM_PWD'),
-               toaddr=os.environ.get('TO_ADDR'),
-               subject="GitHub Updates for the Week of {}".format(from_date))
-        logger.info('Email sent')
-    except:
-        e = sys.exc_info()[0]
-        logger.error('Failed to send email: {}'.format(e))
+        try:
+            send_email(body=message,
+                   fromaddr=os.environ.get('FROM_ADDR'),
+                   frompw=os.environ.get('FROM_PWD'),
+                   toaddr=os.environ.get('TO_ADDR'),
+                   subject="GitHub Updates for the Week of {}".format(from_date))
+            logger.info('Email sent')
+        except:
+            e = sys.exc_info()[0]
+            logger.error('Failed to send email: {}'.format(e))
 
