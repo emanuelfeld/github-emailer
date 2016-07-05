@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
@@ -17,7 +18,7 @@ def send_email(body, subject, fromaddr, frompw, toaddr):
 
     msg.attach(MIMEText(body, 'html'))
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server = smtplib.SMTP(os.environ.get('SMTP_SERVER'), os.environ.get('SMTP_PORT'))
     server.starttls()
     server.login(fromaddr, frompw)
     text = msg.as_string()
@@ -78,8 +79,8 @@ if __name__ == '__main__':
     output = {}
     from_date = date.today() - timedelta(7)
     base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
-    token=os.environ.get('GITHUBTOKEN')
-    following = get_following(os.environ.get('GISTID'))
+    token=os.environ.get('GITHUB_TOKEN')
+    following = get_following(os.environ.get('GIST_ID'))
 
     for organization in following:
         updates = get_updates(organization, from_date, token, base_url)
@@ -89,9 +90,14 @@ if __name__ == '__main__':
     message = format_email(output)
     logger.info('Email formatted')
 
-    send_email(body=message,
-               fromaddr=os.environ.get('FROMADDR'),
-               frompw=os.environ.get('FROMPWD'),
-               toaddr=os.environ.get('TOADDR'),
+    try:
+        send_email(body=message,
+               fromaddr=os.environ.get('FROM_ADDR'),
+               frompw=os.environ.get('FROM_PWD'),
+               toaddr=os.environ.get('TO_ADDR'),
                subject="GitHub Updates for the Week of {}".format(from_date))
-    logger.info('Email sent')
+        logger.info('Email sent')
+    except:
+        e = sys.exc_info()[0]
+        logger.error('Failed to send email: {}'.format(e))
+
