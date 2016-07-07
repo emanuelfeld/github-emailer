@@ -1,0 +1,46 @@
+{
+    "name": "GitHub Emailer",
+    "description": "A Python app that lets you follow GitHub organizations.",
+    "repository": "https://github.com/emanuelfeld/github-emailer",
+    "keywords": ["python", "github"],
+    "env": {
+        "FROM_ADDR": {
+            "description": "Email address you want the app to send from."
+        },
+        "FROM_PWD": {
+            "description": "Password for the email address you want the app to send from."
+        },
+        "SMTP_PORT": {
+            "description": "SMTP port to use.",
+            "value": "smtp.gmail.com"
+        },
+        "SMTP_SERVER": {
+            "description": "SMTP server for your FROM_ADDR.",
+            "value": "587"
+        },
+        "TO_ADDR": {
+            "description": "Email address you want the app to send to."
+        },
+        "GIST_ID": {
+            "description": "ID for the Gist where you list the organizations you want to follow."
+        },
+        "GITHUB_TOKEN": {
+            "description": "GitHub access token"
+        },
+        "UPDATE_DAY": {
+            "description": "Number of the week day on which you want to be emailed (0 for Monday to 6 for Sunday)",
+            "value": "0"
+        }
+    },
+    "addons": [
+        {
+            "plan": "papertrail:chocklad"
+        },
+        {
+            "plan": "scheduler"
+        }
+    ],
+    "buildpacks": [{
+        "url": "heroku/python"
+    }]
+}
