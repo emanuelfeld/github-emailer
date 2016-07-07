@@ -34,7 +34,7 @@
     },
     "addons": [
         {
-            "plan": "papertrail:chocklad"
+            "plan": "papertrail"
         },
         {
             "plan": "scheduler"
