@@ -1,29 +1,23 @@
 import os
 import sys
 import logging
-import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
 from datetime import date, timedelta
 
 import requests
+import sendgrid
+from sendgrid.helpers.mail import *
 from jinja2 import Environment, FileSystemLoader
 
 
-def send_email(body, subject, fromaddr, frompw, toaddr):
-    msg = MIMEMultipart()
-    msg['From'] = fromaddr
-    msg['To'] = toaddr
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(body, 'html'))
-
-    server = smtplib.SMTP(os.environ.get('SMTP_SERVER'), os.environ.get('SMTP_PORT'))
-    server.starttls()
-    server.login(fromaddr, frompw)
-    text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
-    server.quit()
+def send_email(body, subject, fromaddr, toaddr, apikey):
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+    from_email = Email(fromaddr)
+    to_email = Email(toaddr)
+    content = Content("text/html", body)
+    mail = Mail(from_email, subject, to_email, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    if response.status_code >= 400:
+        raise IOError('Status code', response.status_code)
 
 
 def format_email(data):
@@ -93,10 +87,10 @@ if __name__ == '__main__':
 
         try:
             send_email(body=message,
-                   fromaddr=os.environ.get('FROM_ADDR'),
-                   frompw=os.environ.get('FROM_PWD'),
-                   toaddr=os.environ.get('TO_ADDR'),
-                   subject="GitHub Updates for the Week of {}".format(from_date))
+                       subject="GitHub Updates for the Week of {}".format(from_date),
+                       fromaddr=os.environ.get('FROM_ADDR'),
+                       toaddr=os.environ.get('TO_ADDR'),
+                       apikey=os.environ.get('SENDGRID_API_KEY'))
             logger.info('Email sent')
         except Exception as e:
             logger.error('Failed to send email: {}'.format(e))

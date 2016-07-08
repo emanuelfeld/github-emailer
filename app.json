@@ -7,19 +7,11 @@
         "FROM_ADDR": {
             "description": "Email address you want the app to send from."
         },
-        "FROM_PWD": {
-            "description": "Password for the email address you want the app to send from."
-        },
-        "SMTP_PORT": {
-            "description": "SMTP port to use.",
-            "value": "587"
-        },
-        "SMTP_SERVER": {
-            "description": "SMTP server for your FROM_ADDR.",
-            "value": "smtp.gmail.com"
-        },
         "TO_ADDR": {
             "description": "Email address you want the app to send to."
+        },
+        "SENDGRID_API_KEY": {
+            "description": "Sendgrid API key granting 'Mail Send' full access."
         },
         "GIST_ID": {
             "description": "ID for the Gist where you list the organizations you want to follow."
@@ -38,6 +30,9 @@
         },
         {
             "plan": "scheduler"
+        },
+        {
+            "plan": "sendgrid"
         }
     ],
     "buildpacks": [{
