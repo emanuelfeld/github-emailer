@@ -61,37 +61,44 @@ def get_following(gist_id):
     return following
 
 
+def main(delta):
+    output = {}
+    from_date = date.today() - timedelta(delta)
+    base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
+    token=os.environ.get('GITHUB_TOKEN')
+    following = get_following(os.environ.get('GIST_ID'))
+
+    for organization in following:
+        updates = get_updates(organization, from_date, token, base_url)
+        if updates:
+            output[organization] = updates
+
+    message = format_email(output)
+    logger.info('Email formatted')
+
+    try:
+        send_email(body=message,
+                   subject="GitHub Updates for the Week of {}".format(from_date),
+                   fromaddr=os.environ.get('FROM_ADDR'),
+                   toaddr=os.environ.get('TO_ADDR'),
+                   apikey=os.environ.get('SENDGRID_API_KEY'))
+        logger.info('Email sent')
+    except Exception as e:
+        logger.error('Failed to send email: {}'.format(e))
+        raise
+
+
 if __name__ == '__main__':
-    if str(date.today().weekday()) == os.environ.get('UPDATE_DAY'):
-        logger = logging.getLogger()
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-                '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+            '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-        output = {}
-        from_date = date.today() - timedelta(7)
-        base_url = 'https://api.github.com/search/repositories?access_token={token}&q=user:{user}+created:>={date}'
-        token=os.environ.get('GITHUB_TOKEN')
-        following = get_following(os.environ.get('GIST_ID'))
-
-        for organization in following:
-            updates = get_updates(organization, from_date, token, base_url)
-            if updates:
-                output[organization] = updates
-
-        message = format_email(output)
-        logger.info('Email formatted')
-
-        try:
-            send_email(body=message,
-                       subject="GitHub Updates for the Week of {}".format(from_date),
-                       fromaddr=os.environ.get('FROM_ADDR'),
-                       toaddr=os.environ.get('TO_ADDR'),
-                       apikey=os.environ.get('SENDGRID_API_KEY'))
-            logger.info('Email sent')
-        except Exception as e:
-            logger.error('Failed to send email: {}'.format(e))
-            raise
+    if os.environ.get('FREQUENCY').lower() == 'daily':
+        main(delta=1)
+    elif os.environ.get('FREQUENCY').lower() == 'weekly':
+        if str(date.today().weekday()) == os.environ.get('UPDATE_DAY'):
+            main(delta=7)
