@@ -19,8 +19,9 @@ To reuse:
 1. Click the deploy to Heroku button (or fork/clone)
 2. Fill in all the environment variables you can
 3. Get a Sendgrid API key with email sending permissions by clicking on the add-on and rifling through the settings
+4. Set up Scheduler to run `python run.py` daily (there is no weekly option, though you can set the actual day you want to be emailed in the environment variables)
 
-Next steps (maybe)?
+Next steps (maybe, maybe not)?
 
 - Make email template prettier/more informative
 - Store followed organizations in a fancier way
