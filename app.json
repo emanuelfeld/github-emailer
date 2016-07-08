@@ -20,9 +20,14 @@
         "GITHUB_TOKEN": {
             "description": "GitHub access token"
         },
+        "FREQUENCY": {
+            "description": "Frequency of updates (weekly or daily).",
+            "value": "weekly"
+        },
         "UPDATE_DAY": {
-            "description": "Number of the week day on which you want to be emailed (0 for Monday to 6 for Sunday)",
-            "value": "0"
+            "description": "For weekly updates, the day on which you want to be emailed (0 for Monday to 6 for Sunday)",
+            "value": "0",
+            "required":false
         }
     },
     "addons": [

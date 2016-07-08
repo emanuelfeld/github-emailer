@@ -69,9 +69,10 @@ def main(delta):
     following = get_following(os.environ.get('GIST_ID'))
 
     for organization in following:
-        updates = get_updates(organization, from_date, token, base_url)
-        if updates:
-            output[organization] = updates
+        if organization.strip() and not organization.startswith('#'):
+            updates = get_updates(organization, from_date, token, base_url)
+            if updates:
+                output[organization] = updates
 
     message = format_email(output)
     logger.info('Email formatted')
@@ -102,3 +103,7 @@ if __name__ == '__main__':
     elif os.environ.get('FREQUENCY').lower() == 'weekly':
         if str(date.today().weekday()) == os.environ.get('UPDATE_DAY'):
             main(delta=7)
+        else:
+            raise ValueError('Invalid UPDATE_DAY (0-6)')
+    else:
+        raise ValueError('Invalid FREQUENCY ("weekly" or "daily")')
