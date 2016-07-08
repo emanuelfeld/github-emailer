@@ -12,11 +12,11 @@
         },
         "SMTP_PORT": {
             "description": "SMTP port to use.",
-            "value": "smtp.gmail.com"
+            "value": "587"
         },
         "SMTP_SERVER": {
             "description": "SMTP server for your FROM_ADDR.",
-            "value": "587"
+            "value": "smtp.gmail.com"
         },
         "TO_ADDR": {
             "description": "Email address you want the app to send to."
