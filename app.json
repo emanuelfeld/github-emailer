@@ -11,7 +11,8 @@
             "description": "Email address you want the app to send to."
         },
         "SENDGRID_API_KEY": {
-            "description": "Sendgrid API key granting 'Mail Send' full access."
+            "description": "Sendgrid API key granting 'Mail Send' full access. You may set this after you first deploy.",
+            "required": false
         },
         "GIST_ID": {
             "description": "ID for the Gist where you list the organizations you want to follow."
