@@ -98,7 +98,6 @@ if __name__ == '__main__':
                    toaddr=os.environ.get('TO_ADDR'),
                    subject="GitHub Updates for the Week of {}".format(from_date))
             logger.info('Email sent')
-        except:
-            e = sys.exc_info()[0]
+        except Exception as e:
             logger.error('Failed to send email: {}'.format(e))
-
+            raise
